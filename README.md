@@ -16,6 +16,8 @@ npm install --save mescroll.js    //不要使用cnpm安装
 ```html
 <link rel="stylesheet" href="lib/mescroll/mescroll.min.css">
 <script src="lib/mescroll/mescroll.min.js"></script>
+<!-- 插件集 -->
+<script src='myplugin.js'></script>
 ```
 
 ### 3. 使用
@@ -46,15 +48,14 @@ new MyPlugin({
         // append 是否是追加
         let content = ''
         // 将数据渲染到页面中
+        // TODO
         data.curPageData && data.curPageData.forEach(item => {
             content += `<div class="list-item">
                             <div class="item-row row-1">
                                 <div class="left">${item.phone}消费${item.pay_point}点积分</div>
                                 <div class="right orange">+ ${ Number(item['income_point']) + Number(item['team_point'])}</div>
                             </div>
-                            <div class="item-row row-2">
-                                ${item.pay_time}
-                            </div>
+                            <div class="item-row row-2">${item.pay_time}</div>
                         </div>`
         });
         if (append) {
