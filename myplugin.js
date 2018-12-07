@@ -36,11 +36,38 @@ class MyPlugin {
                     }
                 }
             });
-        } else {
+        } else if (conf.plugin == 'photoclip') {
+            // photoClip
+            this.photoclip_init(conf.stage, conf.btnColor)
+            this.pc = new PhotoClip('.img-wrapper', {
+                size: conf.size || document.body.clientWidth * 2 / 3 || 150,
+                outputSize: conf.outputSize || 500,
+                ok: '.clip-btn.yes',
+                file: conf.file,
+                loadStart: () => {
+                    // console.log('开始读取照片');
+                },
+                loadComplete: () => {
+                    // console.log('照片读取完成');
+                    document.querySelector('.clip-wrapper').style.display = 'block'
+                },
+                done: (dataURL) => {
+                    document.querySelector('.clip-wrapper').style.display = 'none'
 
+                    //base64转blob
+                    let blob = this.photoclip_dataURLtoBlob(dataURL);
+                    conf.done && conf.done(blob)
+
+                },
+                fail: (msg) => {
+                    alert(msg);
+                }
+
+            });
         }
 
     }
+    /**mescroll */
     mescroll_init(wrapper, top = 0) {
         $(wrapper).wrap('<div id="mescroll" class="mescroll"></div>')
         $('.mescroll').css({ 'position': 'fixed', 'top': top, 'bottom': 0, 'height': 'auto' })
@@ -55,7 +82,7 @@ class MyPlugin {
                 //联网成功的回调,隐藏下拉刷新的状态;
                 this.mescroll.endSuccess();//无参,注意此处无参
                 //设置数据
-                this.render(data.curPageData);//自行实现 TODO
+                this.render(data);//自行实现 TODO
             },
             error: (data) => {
                 //联网失败的回调,隐藏下拉刷新的状态
@@ -73,8 +100,8 @@ class MyPlugin {
                 this.mescroll.endByPage(data.curPageData.length, data.totalPage);
 
                 //设置列表数据
-                if(page.num > 1){
-                    this.render(data.curPageData, true);//自行实现 TODO
+                if (page.num > 1) {
+                    this.render(data, true);//自行实现 TODO
                 }
             },
             error: () => {
@@ -84,4 +111,40 @@ class MyPlugin {
         });
     }
 
+    /**photoclip */
+    photoclip_init(stage = 'mobile', btnColor = '#3c8fe1') {
+        if (stage == 'mobile') {
+
+            $(document.body).append(`<div class="clip-wrapper">
+                                        <div class="img-wrapper"></div>
+                                        <div class="btn-wrapper">
+                                            <div class="clip-btn yes">裁剪</div>
+                                            <div class="clip-btn no">取消</div>
+                                        </div>
+                                    </div>`)
+
+            $('.clip-wrapper').css({ 'top': 0, 'left': 0, 'right': 0, 'bottom': 0, 'position': 'fixed', 'z-index': 9, 'display': 'none', 'padding-bottom': '15vw' })
+            $('.clip-wrapper .img-wrapper').css({ 'height': '100%' })
+            $('.clip-wrapper .btn-wrapper').css({ 'position': 'absolute', 'display': 'flex', 'width': '100%', 'bottom': 0 })
+            $('.clip-wrapper .clip-btn').css({ 'width': '50%', 'line-height': '15vw', 'font-size': '4vw', 'text-align': 'center', 'z-index': '11' })
+            $('.clip-wrapper .clip-btn.yes').css({ 'background': btnColor, 'color': '#fff' })
+            $('.clip-wrapper .clip-btn.no').css({ 'background': '#fff', 'color': btnColor })
+
+            document.querySelector('.clip-btn.no').addEventListener('click', function () {
+                document.querySelector('.clip-wrapper').style.display = 'none'
+            })
+        }
+    }
+
+    photoclip_dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]),
+            n = bstr.length,
+            u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    }
 }
