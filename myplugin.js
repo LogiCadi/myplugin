@@ -17,9 +17,9 @@ class MyPlugin {
                     callback: page => {
                         this.mescroll_upCallback(page) //上拉加载回调,简写callback:function(page){upCallback(page);}
                     },
-                    page: {
-                        num: 1, //当前页 默认0,回调之前会加1; 即callback(page)会从1开始
-                    },
+                    // page: {
+                    //     num: 1, //当前页 默认0,回调之前会加1; 即callback(page)会从1开始
+                    // },
                     htmlNodata: '<p class="upwarp-nodata">亲，没有更多数据了~</p>',
                     noMoreSize: 5, //如果列表已无数据,可设置列表的总数量要大于5才显示无更多数据;
                     empty: {
@@ -73,7 +73,9 @@ class MyPlugin {
                 this.mescroll.endByPage(data.curPageData.length, data.totalPage);
 
                 //设置列表数据
-                this.render(data.curPageData, true);//自行实现 TODO
+                if(page.num > 1){
+                    this.render(data.curPageData, true);//自行实现 TODO
+                }
             },
             error: () => {
                 //联网失败的回调,隐藏下拉刷新和上拉加载的状态
